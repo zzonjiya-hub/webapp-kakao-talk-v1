@@ -221,6 +221,14 @@
             background: #ffe0b2;
         }
 
+        .notice-btn {
+            background: #e8f5e9;
+        }
+
+        .notice-btn:hover {
+            background: #c8e6c9;
+        }
+
         .logout-btn {
             background: #f5f5f5;
         }
@@ -467,6 +475,183 @@
             background: #f44336;
             color: white;
         }
+
+        /* 공지사항 영역 */
+        .notice-area {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .notice-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .notice-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .notice-label {
+            font-size: 11px;
+            color: #f57c00;
+            font-weight: bold;
+        }
+
+        .notice-text {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .notice-close {
+            background: none;
+            border: none;
+            font-size: 12px;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+            flex-shrink: 0;
+        }
+
+        .notice-close:hover {
+            color: #666;
+        }
+
+        /* 공지사항 접힌 상태 */
+        .notice-area.collapsed {
+            padding: 8px 15px;
+        }
+
+        .notice-area.collapsed .notice-text {
+            display: none;
+        }
+
+        .notice-area.collapsed .notice-close {
+            transform: rotate(180deg);
+        }
+
+        /* 모달 */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 320px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: #fee500;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 16px;
+            margin: 0;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .notice-input {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+        }
+
+        .notice-input:focus {
+            border-color: #fee500;
+        }
+
+        .notice-char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .modal-btn.save-btn {
+            background: #fee500;
+            color: #333;
+        }
+
+        .modal-btn.save-btn:hover {
+            background: #fdd835;
+        }
+
+        .modal-btn.hide-btn {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .modal-btn.hide-btn:hover {
+            background: #e0e0e0;
+        }
     </style>
 </head>
 <body>
@@ -491,6 +676,7 @@
                     </div>
                 </div>
                 <div class="header-right">
+                    <button class="header-btn icon-btn notice-btn" id="noticeBtn" style="display:none;" title="공지사항 관리">📢</button>
                     <button class="header-btn icon-btn download-btn" id="downloadBtn" style="display:none;" title="대화 저장">💾</button>
                     <button class="header-btn icon-btn kickall-btn" id="kickAllBtn" style="display:none;" title="모두 내보내기">👋</button>
                     <button class="header-btn icon-btn admin-btn" id="deleteAllBtn" style="display:none;" title="전체 삭제">🗑️</button>
@@ -498,10 +684,37 @@
                     <button class="header-btn icon-btn fullscreen-btn" id="fullscreenBtn" title="전체화면">⛶</button>
                 </div>
             </div>
+            <!-- 공지사항 영역 -->
+            <div class="notice-area" id="noticeArea" style="display:none;">
+                <div class="notice-icon">📢</div>
+                <div class="notice-content">
+                    <span class="notice-label">공지</span>
+                    <span class="notice-text" id="noticeText"></span>
+                </div>
+                <button class="notice-close" id="noticeCloseBtn" title="공지 접기">▲</button>
+            </div>
             <div class="chat-messages" id="chatMessages"></div>
             <div class="chat-input-area">
                 <input type="text" class="chat-input" id="messageInput" placeholder="메시지를 입력하세요">
                 <button class="send-btn" id="sendBtn">➤</button>
+            </div>
+        </div>
+
+        <!-- 공지사항 관리 모달 -->
+        <div class="modal-overlay" id="noticeModal" style="display:none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📢 공지사항 관리</h3>
+                    <button class="modal-close" id="modalCloseBtn">✕</button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="notice-input" id="noticeInput" placeholder="공지사항 내용을 입력하세요" maxlength="200"></textarea>
+                    <div class="notice-char-count"><span id="charCount">0</span>/200</div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn hide-btn" id="hideNoticeBtn">공지 숨기기</button>
+                    <button class="modal-btn save-btn" id="saveNoticeBtn">공지 등록</button>
+                </div>
             </div>
         </div>
     </div>
@@ -528,6 +741,7 @@
         const messagesRef = database.ref('messages');
         const usersRef = database.ref('users');
         const forceLogoutRef = database.ref('forceLogout');
+        const noticeRef = database.ref('notice');
 
         // 상태 변수
         let currentUser = null;
@@ -552,6 +766,18 @@
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const memberCount = document.getElementById('memberCount');
         const connectionStatus = document.getElementById('connectionStatus');
+
+        // 공지사항 관련
+        const noticeBtn = document.getElementById('noticeBtn');
+        const noticeArea = document.getElementById('noticeArea');
+        const noticeText = document.getElementById('noticeText');
+        const noticeCloseBtn = document.getElementById('noticeCloseBtn');
+        const noticeModal = document.getElementById('noticeModal');
+        const noticeInput = document.getElementById('noticeInput');
+        const charCount = document.getElementById('charCount');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const saveNoticeBtn = document.getElementById('saveNoticeBtn');
+        const hideNoticeBtn = document.getElementById('hideNoticeBtn');
 
         // 로컬 스토리지에서 세션 복구
         function restoreSession() {
@@ -624,6 +850,7 @@
                 deleteAllBtn.style.display = 'block';
                 downloadBtn.style.display = 'block';
                 kickAllBtn.style.display = 'block';
+                noticeBtn.style.display = 'block';
             }
 
             // 사용자 등록
@@ -640,6 +867,9 @@
 
             // 강제 로그아웃 리스너 (관리자 제외)
             startForceLogoutListener();
+
+            // 공지사항 리스너
+            startNoticeListener();
 
             messageInput.focus();
         }
@@ -693,6 +923,7 @@
             messagesRef.off();
             usersRef.off();
             forceLogoutRef.off();
+            noticeRef.off();
             
             // 화면 전환
             chatScreen.classList.remove('active');
@@ -705,6 +936,9 @@
             deleteAllBtn.style.display = 'none';
             downloadBtn.style.display = 'none';
             kickAllBtn.style.display = 'none';
+            noticeBtn.style.display = 'none';
+            noticeArea.style.display = 'none';
+            noticeModal.style.display = 'none';
         }
 
         // 모두 내보내기 (관리자 전용)
@@ -716,6 +950,76 @@
                     sendSystemMessage('👑 관리자가 모든 사용자를 내보냈습니다.');
                 });
             }
+        }
+
+        // 공지사항 리스너
+        function startNoticeListener() {
+            noticeRef.on('value', (snapshot) => {
+                const notice = snapshot.val();
+                if (notice && notice.visible && notice.text) {
+                    noticeText.textContent = notice.text;
+                    noticeArea.style.display = 'flex';
+                    noticeInput.value = notice.text;
+                    charCount.textContent = notice.text.length;
+                } else {
+                    noticeArea.style.display = 'none';
+                    if (!notice || !notice.text) {
+                        noticeInput.value = '';
+                        charCount.textContent = '0';
+                    }
+                }
+            });
+        }
+
+        // 공지사항 모달 열기
+        function openNoticeModal() {
+            noticeModal.style.display = 'flex';
+        }
+
+        // 공지사항 모달 닫기
+        function closeNoticeModal() {
+            noticeModal.style.display = 'none';
+        }
+
+        // 공지사항 저장
+        function saveNotice() {
+            const text = noticeInput.value.trim();
+            if (!text) {
+                alert('공지사항 내용을 입력해주세요.');
+                return;
+            }
+
+            noticeRef.set({
+                text: text,
+                visible: true,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP,
+                updatedBy: currentUser
+            }).then(() => {
+                closeNoticeModal();
+                sendSystemMessage(`📢 공지사항이 등록되었습니다.`);
+            });
+        }
+
+        // 공지사항 숨기기
+        function hideNotice() {
+            noticeRef.once('value', (snapshot) => {
+                const notice = snapshot.val();
+                if (notice) {
+                    noticeRef.update({
+                        visible: false
+                    }).then(() => {
+                        closeNoticeModal();
+                        sendSystemMessage(`📢 공지사항이 숨겨졌습니다.`);
+                    });
+                } else {
+                    closeNoticeModal();
+                }
+            });
+        }
+
+        // 공지사항 접기/펼치기
+        function toggleNoticeCollapse() {
+            noticeArea.classList.toggle('collapsed');
         }
 
         // 사용자 수 리스너
@@ -944,6 +1248,7 @@
             messagesRef.off();
             usersRef.off();
             forceLogoutRef.off();
+            noticeRef.off();
             
             // 화면 전환
             chatScreen.classList.remove('active');
@@ -956,6 +1261,9 @@
             deleteAllBtn.style.display = 'none';
             downloadBtn.style.display = 'none';
             kickAllBtn.style.display = 'none';
+            noticeBtn.style.display = 'none';
+            noticeArea.style.display = 'none';
+            noticeModal.style.display = 'none';
         }
 
         // 전체화면 토글
@@ -1005,6 +1313,23 @@
         downloadBtn.addEventListener('click', downloadChat);
         kickAllBtn.addEventListener('click', kickAllUsers);
         fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        // 공지사항 관련 이벤트
+        noticeBtn.addEventListener('click', openNoticeModal);
+        modalCloseBtn.addEventListener('click', closeNoticeModal);
+        saveNoticeBtn.addEventListener('click', saveNotice);
+        hideNoticeBtn.addEventListener('click', hideNotice);
+        noticeCloseBtn.addEventListener('click', toggleNoticeCollapse);
+        noticeInput.addEventListener('input', () => {
+            charCount.textContent = noticeInput.value.length;
+        });
+        
+        // 모달 외부 클릭 시 닫기
+        noticeModal.addEventListener('click', (e) => {
+            if (e.target === noticeModal) {
+                closeNoticeModal();
+            }
+        });
 
         // 페이지 로드 시 세션 복구
         window.addEventListener('load', () => {
